@@ -173,6 +173,20 @@ def previous_question():
     if st.session_state.question_index > 0:
         st.session_state.question_index -= 1
 
+def classify_risk(points):
+    if 9 <= points <= 20:
+        return "Conservative"
+    elif 21 <= points <= 31:
+        return "Moderately conservative"
+    elif 32 <= points <= 41:
+        return "Moderate"
+    elif 42 <= points <= 51:
+        return "Moderately aggressive"
+    elif 52 <= points <= 64:
+        return "Aggressive"
+    else:
+        return "Unknown"  # Handle points outside the defined range
+
 # Welcome page
 if st.session_state.question_index == 0 and st.session_state.launch_screen:
     st.title("Welcome to the Commodity Metals Portfolio Recommender")
@@ -250,6 +264,7 @@ elif st.session_state.question_index <= 11:
         #        if st.button("Finish"):
         #            st.session_state.question_index +=1
 
+
 # Once final question has been answered                    
 elif st.session_state.question_index == 12:
      
@@ -286,12 +301,6 @@ elif st.session_state.question_index == 12:
         # Create a Data Frame from the combined dictionary
         user_input_df = pd.DataFrame([combined_dict])
         
-        # Make Predictions
-        #model = load_model("model")
-        #prediction = model.predict(user_input_df)[0]
-        #st.write("Prediction is ", prediction)        
-
-
 
         # Load and make predictions using the model
         try:
@@ -301,30 +310,38 @@ elif st.session_state.question_index == 12:
         except Exception as e:
             st.error(f"Error loading model or making prediction: {e}")
             prediction = None  # Handle failure in model loading or prediction
+
         
         if prediction:
-
+            
             # Calculate and display the total points after "Risk Portrait"
             total_points = sum(points.values())
+
+            # Classify the risk based on the points
+            risk_portrait = classify_risk(total_points)
+
+            # Calculate and display the total points after "Risk Portrait"
             st.write(f"Total Points: {total_points}")
-            
+         
             # Define the data labels for the pie chart
             labels = ['Gold', 'Silver', 'Copper']
         
-            # Determine portfolio breakdown depending on model prediction on user input
-            if prediction == "Conservative":
-                values = [70, 20, 10]
-            elif prediction == "Moderately Conservative":
-                values = [40, 45, 15]
-            elif prediction == "Moderate":
-                values = [25, 50, 25]
-            elif prediction == "Moderately Aggressive":
-                values = [20, 35, 45]
-            elif prediction == "Aggressive":
-                values = [10, 20, 70]
+            # Proceed with portfolio breakdown and pie chart logic
+            if risk_portrait in ["Conservative", "Moderately conservative", "Moderate", "Moderately aggressive", "Aggressive"]:
+                if risk_portrait == "Conservative":
+                    values = [70, 20, 10]
+                elif risk_portrait == "Moderately conservative":
+                    values = [40, 45, 15]
+                elif risk_portrait == "Moderate":
+                    values = [25, 50, 25]
+                elif risk_portrait == "Moderately aggressive":
+                    values = [20, 35, 45]
+                elif risk_portrait == "Aggressive":
+                    values = [10, 20, 70]
             else:
                 values = [0, 0, 0]  # Handle unexpected predictions
-            
+
+            # Create and display the pie chart
             portfolio_df = pd.DataFrame({
                 'Metal': labels,
                 'Percentage': values
