@@ -193,7 +193,7 @@ if st.session_state.question_index == 0 and st.session_state.launch_screen:
 
     # Add the GIF display
     gif_path = 'goldnsilverncopper.gif'
-    st.image(gif_path, caption="Gold, Silver, and Copper Overview", use_column_width=True)
+    st.image(gif_path, caption="Gold, Silver, and Copper", use_column_width=True)
     
     st.write("In this model, you will be introduced to 3 Commodity metals: Gold, Silver and Copper. It is important to understand difference in risks and suitability of each metal hence please refer to summary table below.")
     st.write("Before you invest, it is also important to know on your investment objectives, risk understanding and appetite. You will be tasked to answer a set of Questionnaire based on Time Horizon, Investment knowledge, Budget and Risk Tolerance.")
@@ -343,8 +343,8 @@ elif st.session_state.question_index == 12:
 
 
         # Log the input data being passed to the model
-        st.write("Input Data to Model:")
-        st.write(user_input_df)
+        #st.write("Input Data to Model:")
+        #st.write(user_input_df)
 
         # Load and make predictions using the model
         try:
@@ -368,7 +368,7 @@ elif st.session_state.question_index == 12:
             risk_portrait = classify_risk(total_points)
 
             # Display only the portrait based on points (ignore model's prediction for risk portrait)
-            st.write(f"Risk Portrait (based on total points): {risk_portrait}")
+            #st.write(f"Risk Portrait (based on total points): {risk_portrait}")
             
             # Define the data labels for the pie chart
             labels = ['Gold', 'Silver', 'Copper']
