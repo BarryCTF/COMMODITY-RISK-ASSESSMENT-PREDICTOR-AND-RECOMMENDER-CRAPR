@@ -34,8 +34,8 @@ questions = [
 ]
 
 options_list = [
-    ["Short-term needs (e.g., less than 3 years)", "Medium-term needs (e.g., 3-7 years)", "Long-term growth (e.g., more than 7 years)"],
-    ["Less than 3 years", "3–5 years", "6–10 years", "11 years or more"],
+    ["Long-term growth (e.g., more than 7 years)", "Medium-term needs (e.g., 3-7 years)", "Short-term needs (e.g., less than 3 years)"],
+    ["11 years or more", "6–10 years", "3–5 years", "Less than 3 years"], 
     ["Novice. My knowledge of investing is limited.", "Good. I have a working knowledge of the major characteristics of the different types of investments and the financial marketplace.", "Excellent. I am a seasoned investor and have a comprehensive understanding of the different types of investments, their associated risks and how they relate to market volatility."],
     ["Not familiar", "Somewhat familiar", "Very familiar. I invest in stocks, bonds, options, etc."],
     ["Less than $30,000", "$30,000 - $59,999", "$60,000 - $99,999", "$100,000 - $199,999", "Over $200,000"],  
@@ -190,8 +190,51 @@ def classify_risk(points):
 # Welcome page
 if st.session_state.question_index == 0 and st.session_state.launch_screen:
     st.title("Welcome to the Commodity Metals Portfolio Recommender")
-    st.write("This Questionnaire will help us assess your Investor Risk profile before recommending your ideal portfolio.")
-    if st.button("Start"):
+
+    # Add the GIF display
+    gif_path = 'goldnsilverncopper.gif'
+    st.image(gif_path, caption="Gold, Silver, and Copper Overview", use_column_width=True)
+    
+    st.write("In this model, you will be introduced to 3 Commodity metals: Gold, Silver and Copper. It is important to understand difference in risks and suitability of each metal hence please refer to summary table below.")
+    st.write("Before you invest, it is also important to know on your investment objectives, risk understanding and appetite. You will be tasked to answer a set of Questionnaire based on Time Horizon, Investment knowledge, Budget and Risk Tolerance.")
+    st.write("This Questionnaire will help us assess your Investor Risk profile before recommending your ideal portfolio. Do keep in mind to answer each question honestly to accurately reflect your unique profile.")
+    
+
+    # Create Summary Table into data
+    data = {
+        'Metal': ['Gold', 'Silver', 'Copper'],
+        'Characteristics': [
+            '- Safe-haven asset\n- Low volatility\n- Inflation hedge\n- Highly liquid', 
+            '- Dual demand: industrial and investment\n- Higher volatility\n- Correlates with economic cycles\n- Relatively liquid', 
+            '- Primarily industrial use\n- High volatility\n- Economic indicator\n- Good liquidity'
+        ],
+        'Risk Profile': ['Low Risk', 'Moderate Risk', 'High Risk'],
+        'Suitability': [
+            'Conservative investors\nLong-term wealth preservation', 
+            'Moderately conservative to moderate investors\nSeeking higher returns', 
+            'Moderate to aggressive investors\nShort to medium-term investments'
+        ],
+        'Considerations': [
+            '- Use as a hedge against economic uncertainty like inflation, currency devaluation, and geopolitical risks\n- Maintain as a stable store of value\n- Suitable for wealth preservation',
+            '- Balances safe-haven and industrial demand\n- Higher potential returns with increased risk\n- Suitable for portfolio diversification',
+            '- Capitalize on global economic growth\n- Manage closely due to high volatility\n- Suitable for those willing to take higher risks'
+        ]
+    }
+
+    # Convert the data to a pandas DataFrame
+    summary_table = pd.DataFrame(data)
+
+    # Add a section title for the table
+    st.subheader("Comparison Summary:")
+
+    # Display the updated table on the welcome page
+    st.table(summary_table)
+
+
+    
+    st.markdown('<p style="color:red; font-weight:bold;"> ** Do note this model reflects your risk profile but does not assure guarantees on your investments. ** </p>', unsafe_allow_html=True)
+    
+    if st.button("Click here to Start"):
         st.session_state.launch_screen = False
 
 # Question pages
@@ -284,9 +327,6 @@ elif st.session_state.question_index == 12:
                 user_responses[f"q{i}"] = options_list[i-1].index(answer)+1
                 
 
-        # Calculate the points based on user choices for the 12 questions
-        #points = calculate_points(user_responses)
-
         # Check if calculate_points is defined and works correctly
         try:
             points = calculate_points(user_responses)
@@ -300,7 +340,11 @@ elif st.session_state.question_index == 12:
 
         # Create a Data Frame from the combined dictionary
         user_input_df = pd.DataFrame([combined_dict])
-        
+
+
+        # Log the input data being passed to the model
+        st.write("Input Data to Model:")
+        st.write(user_input_df)
 
         # Load and make predictions using the model
         try:
@@ -317,12 +361,15 @@ elif st.session_state.question_index == 12:
             # Calculate and display the total points after "Risk Portrait"
             total_points = sum(points.values())
 
+            # Calculate and display the total points after "Risk Portrait"
+            st.write(f"Total Points: {total_points}")
+
             # Classify the risk based on the points
             risk_portrait = classify_risk(total_points)
 
-            # Calculate and display the total points after "Risk Portrait"
-            st.write(f"Total Points: {total_points}")
-         
+            # Display only the portrait based on points (ignore model's prediction for risk portrait)
+            st.write(f"Risk Portrait (based on total points): {risk_portrait}")
+            
             # Define the data labels for the pie chart
             labels = ['Gold', 'Silver', 'Copper']
         
@@ -354,8 +401,49 @@ elif st.session_state.question_index == 12:
             fig = px.pie(portfolio_df, values='Percentage', names='Metal', title="Your Ideal Portfolio", color='Metal', color_discrete_map=color_map)
             st.plotly_chart(fig, theme=None)
 
+    
+            # Define risk profiles and their descriptions
+            risk_profiles = {
+                'Conservative': ( 
+                    "You have a low tolerance for risk and potential loss of capital. "
+                    "You have a long-term investment time horizon. You are willing to accept some short-term fluctuations. "
+                    "You accept small losses in your investment portfolio in exchange for modest returns. Capital appreciation is not a priority."
+                ),
+                'Moderately conservative': (
+                    "You have a cautious approach to risk. You prefer to protect your capital while seeking moderate growth. "
+                    "You have a mid to long-term investment time horizon and are willing to accept some risk for potential capital appreciation, "
+                    "but prefer lower volatility investments."
+                ),
+                'Moderate': (
+                    "You have a moderate tolerance for risk and loss of capital. You are willing to tolerate some fluctuations in your investment returns."
+                    "You will accept moderate losses of capital. You have at least a medium term investment time horizon"
+                ),
+                'Moderately aggressive': (
+                    "You are comfortable taking on more risk for the potential of higher returns. You are focused on capital appreciation "
+                    "and are willing to accept moderate fluctuations in your portfolio value over the short/medium-term."
+                ),
+                'Aggressive': (
+                    "You have a high tolerance for risk and a short-term investment horizon. You are willing to endure substantial market "
+                    "volatility and potential loss of capital in pursuit of higher returns and significant capital appreciation."
+                )
+            }
+
+
+            # Function to get profile description
+            def get_profile_description(risk_profile):
+                return risk_profiles.get(risk_profile, "Profile description not available")
+
+            # Display the predicted risk profile and its description below the pie chart
+            st.markdown(f"### Your Risk Profile: {risk_portrait}")
+            st.write(get_profile_description(risk_portrait))
+
+
         else:
             st.error("Could not generate the portfolio breakdown due to missing prediction.")
+
+
+        # Add spacing before the next section
+        st.markdown("<br><br><br>", unsafe_allow_html=True)  # Adds three line breaks
 
         st.write("Here are the choices you made:")
         
