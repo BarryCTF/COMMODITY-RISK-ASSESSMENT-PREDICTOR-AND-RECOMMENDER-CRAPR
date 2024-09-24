@@ -1,3 +1,4 @@
+# Importing required libraries
 import streamlit as st
 from pycaret.classification import load_model
 import plotly.express as px
@@ -48,11 +49,11 @@ options_list = [
     ["Avoiding risk to preserve capital.", "Taking some risk to achieve moderate growth.", "Taking significant risk to achieve high growth.", "Taking maximum risk to maximize potential returns."]
 ]
 
-
+# Function to calculate points based on the responses to 12 questionnaires
 def calculate_points(responses):
-    points = {}
+    points = {} # Initialize an empty dictionary to store the points for each question
     
-    # q1
+    # q1: Assign points based on the response to question 1
     if responses['q1'] == 1:
         points['q1-points'] = 1
     elif responses['q1'] == 2:
@@ -60,7 +61,7 @@ def calculate_points(responses):
     elif responses['q1'] == 3:
         points['q1-points'] = 5
     
-    # q2
+    # q2: Assign points based on the response to question 2
     if responses['q2'] == 1:
         points['q2-points'] = 1
     elif responses['q2'] == 2:
@@ -70,7 +71,7 @@ def calculate_points(responses):
     elif responses['q2'] == 4:
         points['q2-points'] = 7
     
-    # q3
+    # q3: Assign points based on the response to question 3
     if responses['q3'] == 1:
         points['q3-points'] = 1
     elif responses['q3'] == 2:
@@ -78,7 +79,7 @@ def calculate_points(responses):
     elif responses['q3'] == 3:
         points['q3-points'] = 5
     
-    # q4
+    # q4: Assign points based on the response to question 4
     if responses['q4'] == 1:
         points['q4-points'] = 1
     elif responses['q4'] == 2:
@@ -86,7 +87,7 @@ def calculate_points(responses):
     elif responses['q4'] == 3:
         points['q4-points'] = 5
     
-    # q5
+    # q5: Assign points based on the response to question 5
     if responses['q5'] == 1:
         points['q5-points'] = 1
     elif responses['q5'] == 2:
@@ -98,7 +99,7 @@ def calculate_points(responses):
     elif responses['q5'] == 5:
         points['q5-points'] = 5
     
-    # q6
+    # q6: Assign points based on the response to question 6
     if responses['q6'] == 1:
         points['q6-points'] = 1
     elif responses['q6'] == 2:
@@ -106,7 +107,7 @@ def calculate_points(responses):
     elif responses['q6'] == 3:
         points['q6-points'] = 5
     
-    # q7
+    # q7: Assign points based on the response to question 7
     if responses['q7'] == 1:
         points['q7-points'] = 1
     elif responses['q7'] == 2:
@@ -116,7 +117,7 @@ def calculate_points(responses):
     elif responses['q7'] == 4:
         points['q7-points'] = 7
     
-    # q8
+    # q8: Assign points based on the response to question 8
     if responses['q8'] == 1:
         points['q8-points'] = 1
     elif responses['q8'] == 2:
@@ -124,7 +125,7 @@ def calculate_points(responses):
     elif responses['q8'] == 3:
         points['q8-points'] = 5
     
-    # q9
+    # q9: Assign points based on the response to question 9
     if responses['q9'] == 1:
         points['q9-points'] = 0
     elif responses['q9'] == 2:
@@ -134,7 +135,7 @@ def calculate_points(responses):
     elif responses['q9'] == 4:
         points['q9-points'] = 5
     
-    # q10
+    # q10: Assign points based on the response to question 10
     if responses['q10'] == 1:
         points['q10-points'] = 0
     elif responses['q10'] == 2:
@@ -144,7 +145,7 @@ def calculate_points(responses):
     elif responses['q10'] == 4:
         points['q10-points'] = 5
     
-    # q11
+    # q11: Assign points based on the response to question 11
     if responses['q11'] == 1:
         points['q11-points'] = 1
     elif responses['q11'] == 2:
@@ -152,7 +153,7 @@ def calculate_points(responses):
     elif responses['q11'] == 3:
         points['q11-points'] = 5
     
-    # q12
+    # q12: Assign points based on the response to question 12
     if responses['q12'] == 1:
         points['q12-points'] = 0
     elif responses['q12'] == 2:
@@ -162,7 +163,7 @@ def calculate_points(responses):
     elif responses['q12'] == 4:
         points['q12-points'] = 5
     
-    return points
+    return points # Return the dictionary containing points for all questions
 
 # Function to handle navigation
 def next_question():
@@ -173,6 +174,7 @@ def previous_question():
     if st.session_state.question_index > 0:
         st.session_state.question_index -= 1
 
+# Function to classify the point range to specific Risk portrait
 def classify_risk(points):
     if 9 <= points <= 20:
         return "Conservative"
@@ -189,51 +191,38 @@ def classify_risk(points):
 
 # Welcome page
 if st.session_state.question_index == 0 and st.session_state.launch_screen:
-    st.title("Welcome to the Commodity Metals Portfolio Recommender")
+    st.title("Welcome to the COMMODITY RISK ASSESSMENT PREDICTOR AND RECOMMENDER [CRAPR]")
 
     # Add the GIF display
     gif_path = 'goldnsilverncopper.gif'
     st.image(gif_path, caption="Gold, Silver, and Copper", use_column_width=True)
-    
+
+    # Add the Introduction paragraphs in Welcome page
     st.write("In this model, you will be introduced to 3 Commodity metals: Gold, Silver and Copper. It is important to understand difference in risks and suitability of each metal hence please refer to summary table below.")
     st.write("Before you invest, it is also important to know on your investment objectives, risk understanding and appetite. You will be tasked to answer a set of Questionnaire based on Time Horizon, Investment knowledge, Budget and Risk Tolerance.")
     st.write("This Questionnaire will help us assess your Investor Risk profile before recommending your ideal portfolio. Do keep in mind to answer each question honestly to accurately reflect your unique profile.")
     
 
-    # Create Summary Table into data
+    # Create Metal Summary Table into data
     data = {
-        'Metal': ['Gold', 'Silver', 'Copper'],
-        'Characteristics': [
-            '- Safe-haven asset\n- Low volatility\n- Inflation hedge\n- Highly liquid', 
-            '- Dual demand: industrial and investment\n- Higher volatility\n- Correlates with economic cycles\n- Relatively liquid', 
-            '- Primarily industrial use\n- High volatility\n- Economic indicator\n- Good liquidity'
-        ],
-        'Risk Profile': ['Low Risk', 'Moderate Risk', 'High Risk'],
-        'Suitability': [
-            'Conservative investors\nLong-term wealth preservation', 
-            'Moderately conservative to moderate investors\nSeeking higher returns', 
-            'Moderate to aggressive investors\nShort to medium-term investments'
-        ],
-        'Considerations': [
-            '- Use as a hedge against economic uncertainty like inflation, currency devaluation, and geopolitical risks\n- Maintain as a stable store of value\n- Suitable for wealth preservation',
-            '- Balances safe-haven and industrial demand\n- Higher potential returns with increased risk\n- Suitable for portfolio diversification',
-            '- Capitalize on global economic growth\n- Manage closely due to high volatility\n- Suitable for those willing to take higher risks'
-        ]
+    'Points': ['09-20', '21-31', '32-41', '42-51', '>=52'],
+    'Risk Profile': ['Conservative', 'Moderately Conservative', 'Moderate', 'Moderately Aggressive', 'Aggressive']
     }
 
     # Convert the data to a pandas DataFrame
-    summary_table = pd.DataFrame(data)
+    points_table = pd.DataFrame(data)
 
     # Add a section title for the table
-    st.subheader("Comparison Summary:")
+    st.subheader("Risk Profile Points Allocation Table:")
 
-    # Display the updated table on the welcome page
-    st.table(summary_table)
+    # Display the updated Summary table on the welcome page
+    st.table(points_table)
 
 
-    
+    # Set Predictor disclaimer message in red
     st.markdown('<p style="color:red; font-weight:bold;"> ** Do note this model reflects your risk profile but does not assure guarantees on your investments. ** </p>', unsafe_allow_html=True)
-    
+
+    # Button to start the Questionnaire
     if st.button("Click here to Start"):
         st.session_state.launch_screen = False
 
@@ -266,12 +255,6 @@ elif st.session_state.question_index <= 11:
             key=f"q{st.session_state.question_index}"  # Ensure a unique key for each question
         )
         
-        #selected_option = st.radio(
-         #  "Select an option:", 
-          #  options_list[st.session_state.question_index], 
-           #key=f"q{st.session_state.question_index}",
-            #index=options_list[st.session_state.question_index].index(st.session_state.answers[st.session_state.question_index]) if st.session_state.answers[st.session_state.question_index] else 0
-        #)
 
         # Store the selected option in session state
         st.session_state.answers[st.session_state.question_index] = selected_option
@@ -445,6 +428,7 @@ elif st.session_state.question_index == 12:
         # Add spacing before the next section
         st.markdown("<br><br><br>", unsafe_allow_html=True)  # Adds three line breaks
 
+        # Provide summary breakdown of user's choices for each question
         st.write("Here are the choices you made:")
         
         for i, answer in enumerate(st.session_state.answers, 1):
@@ -456,7 +440,7 @@ elif st.session_state.question_index == 12:
                 st.write("---")        
         
         
-
+        # To bring user back to welcome page
         if st.button("Restart"):
             st.session_state.launch_screen = True
             st.session_state.question_index = 0
